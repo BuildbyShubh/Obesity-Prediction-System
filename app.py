@@ -19,17 +19,17 @@ except Exception as e:
 # Prediction Function with Bulletproof Error Handling
 # ==========================================================
 def predict_obesity(
-    Age, Gender, Height, Weight, CALC, FAVC, FCVC,
+    Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
     SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
 ):
     values = [
-        Age, Gender, Height, Weight, CALC, SCC, FAVC, FCVC,
+        Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
         SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
     ]
 
     # 1. Empty input check 
     if any(v is None or str(v).strip() == "" for v in values):
-        return "Please fill in all the input fields and select all dropdown options."
+        return "❌ Please fill in all the input fields and select all dropdown options."
 
     # 2. Type casting
     try:
@@ -38,8 +38,11 @@ def predict_obesity(
         Height = float(Height)
         Weight = float(Weight)
         CALC = int(CALC)
+        SCC = int(SCC)
+        CAEC = int(CAEC)
         FAVC = int(FAVC)
         FCVC = float(FCVC)
+        NCP = float(NCP)
         SMOKE = int(SMOKE)
         CH2O = float(CH2O)
         family_history_with_overweight = int(family_history_with_overweight)
@@ -59,14 +62,29 @@ def predict_obesity(
 
     try:
         input_data = [[
-            Age, Gender, Height, Weight, CALC, FAVC, FCVC,
+            Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
             SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
         ]]
 
         prediction = deployed_knn.predict(input_data)
         
-        result_class = str(prediction[0]).replace("_", " ")
-        return f"🩺 Assessment Result\n\nPredicted Category: {result_class}"
+        # --- CODE BLOCK: ADDED HUMAN-READABLE CATEGORY MAPPING ---
+        # Reverse mapping the integer back to a highly descriptive string
+        category_map = {
+            0: "Insufficient Weight (Underweight)",
+            1: "Normal Weight (Healthy weight range)",
+            2: "Overweight Level I (Pre-obesity)",
+            3: "Overweight Level II (Pre-obesity)",
+            4: "Obesity Type I (Low-risk obesity)",
+            5: "Obesity Type II (Moderate-risk obesity)",
+            6: "Obesity Type III (High-risk obesity)"
+        }
+        
+        # Safely get the mapped string, fallback to raw number if something goes wrong
+        result_class = category_map.get(prediction[0], f"Unknown Category Code: {prediction[0]}")
+        
+        return f"🩺 Assessment Result\n\nPredicted Category: {result_class}\n\nPlease consult a healthcare provider for personalized medical advice."
+        # ---------------------------------------------------------
 
     except Exception as e:
         error_trace = traceback.format_exc()
@@ -76,8 +94,6 @@ def predict_obesity(
 # ==========================================================
 # Interface Setup (Enhanced Layout)
 # ==========================================================
-# --- CODE BLOCK: ENHANCED UI WITH GR.BLOCKS ---
-# Using gr.Blocks for custom horizontal layout and theming
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate")) as app:
     
     # Header
@@ -113,6 +129,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate")) as
             SMOKE = gr.Dropdown(choices=[("No", 0), ("Yes", 1)], label="Smoker (SMOKE)")
             FAF = gr.Number(label="Physical Activity Frequency (FAF, 0 to 3)")
             TUE = gr.Number(label="Technology Use Time (TUE, 0 to 2)")
+            SCC = gr.Dropdown(choices=[("No", 0), ("Yes", 1)], label="Calorie Monitoring (SCC)")
             MTRANS = gr.Dropdown(choices=[("Automobile", 0), ("Motorbike", 1), ("Bike", 2), ("Public Transit", 3), ("Walking", 4)], label="Transportation (MTRANS)")
 
     # Output Section
@@ -122,27 +139,25 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate")) as
         clear_btn = gr.ClearButton(size="lg")
     
     with gr.Row():
-        result_box = gr.Textbox(label="Assessment Result", lines=3, interactive=False)
+        result_box = gr.Textbox(label="Assessment Result", lines=4, interactive=False)
 
     # Footer
     gr.Markdown("""
     ---
     ### 👨‍💻 About the Developer
-    **Created by:** Shubham Sharma
+    **Created by:** Chandan Saroj (MERN Stack Developer & SDE)
     * **LinkedIn:** [Connect with me](YOUR_LINKEDIN_URL_HERE)
     * **GitHub:** [Check out my projects](YOUR_GITHUB_URL_HERE)
     """)
 
-    # --- Wire up the logic ---
-    # Ensure this array exactly matches the 16 arguments of predict_obesity!
+    # Wire up the logic
     input_components = [
-        Age, Gender, Height, Weight, CALC, FAVC, FCVC,
+        Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
         SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
     ]
     
     submit_btn.click(fn=predict_obesity, inputs=input_components, outputs=result_box)
     clear_btn.add(input_components + [result_box])
-# ----------------------------------------------
 
 # ==========================================================
 # Launch Configuration
