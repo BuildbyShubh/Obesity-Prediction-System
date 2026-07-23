@@ -19,11 +19,11 @@ except Exception as e:
 # Prediction Function with Bulletproof Error Handling
 # ==========================================================
 def predict_obesity(
-    Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
+    Age, Gender, Height, Weight, CALC, FAVC, FCVC,
     SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
 ):
     values = [
-        Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
+        Age, Gender, Height, Weight, CALC, SCC, FAVC, FCVC,
         SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
     ]
 
@@ -38,11 +38,8 @@ def predict_obesity(
         Height = float(Height)
         Weight = float(Weight)
         CALC = int(CALC)
-        SCC = int(SCC)
-        CAEC = int(CAEC)
         FAVC = int(FAVC)
         FCVC = float(FCVC)
-        NCP = float(NCP)
         SMOKE = int(SMOKE)
         CH2O = float(CH2O)
         family_history_with_overweight = int(family_history_with_overweight)
@@ -62,7 +59,7 @@ def predict_obesity(
 
     try:
         input_data = [[
-            Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
+            Age, Gender, Height, Weight, CALC, FAVC, FCVC,
             SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
         ]]
 
@@ -116,7 +113,6 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate")) as
             SMOKE = gr.Dropdown(choices=[("No", 0), ("Yes", 1)], label="Smoker (SMOKE)")
             FAF = gr.Number(label="Physical Activity Frequency (FAF, 0 to 3)")
             TUE = gr.Number(label="Technology Use Time (TUE, 0 to 2)")
-            SCC = gr.Dropdown(choices=[("No", 0), ("Yes", 1)], label="Calorie Monitoring (SCC)")
             MTRANS = gr.Dropdown(choices=[("Automobile", 0), ("Motorbike", 1), ("Bike", 2), ("Public Transit", 3), ("Walking", 4)], label="Transportation (MTRANS)")
 
     # Output Section
@@ -140,7 +136,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="blue", neutral_hue="slate")) as
     # --- Wire up the logic ---
     # Ensure this array exactly matches the 16 arguments of predict_obesity!
     input_components = [
-        Age, Gender, Height, Weight, CALC, SCC, CAEC, FAVC, FCVC, NCP,
+        Age, Gender, Height, Weight, CALC, FAVC, FCVC,
         SMOKE, CH2O, family_history_with_overweight, FAF, TUE, MTRANS
     ]
     
